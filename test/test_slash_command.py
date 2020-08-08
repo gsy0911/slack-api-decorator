@@ -53,29 +53,21 @@ def sc2_accept(params):
     return "sc2_accept"
 
 
-def test_normal_sc():
-    result = sc1.execute(payload_from_slack_1)
-    assert result == "sc1_accept"
+@sc1.add(command="/sc3", guard=True)
+def sc2_accept(params):
+    return "guard"
 
 
-def test_normal_sc2():
-    result = sc1.execute(payload_from_slack_2)
-    assert result == "sc2_accept"
-
-
-def test_normal_sc1_user_a_after():
-    result = sc1.execute(payload_from_slack_user_B)
-    assert result == "after_sc1_accept_user_B"
-
-
-def test_normal_sc_user_a():
-    result = sc1.execute(payload_from_slack_user_A)
-    assert result == "sc1_accept_user_A"
-
-
-def test_normal_sc_channel_z():
-    result = sc1.execute(payload_from_slack_channel_Z)
-    assert result == "sc1_accept_channel_Z"
+@pytest.mark.parametrize("slack_payload,ideal_result", [
+        (payload_from_slack_1, "sc1_accept"),
+        (payload_from_slack_2, "sc2_accept"),
+        (payload_from_slack_user_B, "after_sc1_accept_user_B"),
+        (payload_from_slack_user_A, "sc1_accept_user_A"),
+        (payload_from_slack_channel_Z, "sc1_accept_channel_Z"),
+        (generate_slash_command_payload(command="/none"), "guard")
+    ])
+def test_slash_command(slack_payload, ideal_result):
+    assert sc1.execute(slack_payload) == ideal_result
 
 
 def test_condition_not_callable_error():

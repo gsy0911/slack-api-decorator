@@ -14,6 +14,7 @@ help:
 	@echo "build: build python project"
 	@echo "deploy: upload to pypi"
 	@echo "test-deploy: upload to pypi"
+	@echo "test-python: test with pytest"
 
 
 .PHONY: help

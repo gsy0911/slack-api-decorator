@@ -38,9 +38,9 @@ class SlashCommand:
         get command from the payload
         """
         if 'command' not in params:
-            raise Exception
+            raise SlackApiDecoratorException()
         if len(params['command']) == 0:
-            raise Exception
+            raise SlackApiDecoratorException()
         return params['command'][0]
 
     def _add_to_instance(self, executor_info: dict):
@@ -53,9 +53,9 @@ class SlashCommand:
             guard=False):
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise Exception
+                raise SlackApiDecoratorException()
             if not (callable(after) or after is None):
-                raise Exception
+                raise SlackApiDecoratorException()
             executor_info = {
                 "app_name": self.app_name,
                 "command": command,
