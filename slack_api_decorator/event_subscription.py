@@ -61,7 +61,17 @@ class EventSubscription:
         elif "user" in params['event']:
             return params['event']['user']
         else:
-            return ""
+            raise SlackApiDecoratorException()
+
+    @staticmethod
+    def _get_channel_id_from(params: dict) -> dict:
+        if 'event' not in params:
+            raise SlackApiDecoratorException()
+        if "item" in params['event']:
+            if "channel" in params['event']['item']:
+                return params['event']['item']['channel']
+        else:
+            raise SlackApiDecoratorException()
 
     @staticmethod
     def _get_reaction_from(params: dict) -> str:
@@ -79,7 +89,7 @@ class EventSubscription:
         elif type(input_x) is list:
             return lambda x: function(x) in input_x
         else:
-            raise SlackApiDecoratorException
+            raise SlackApiDecoratorException()
 
     def add(self,
             event_type: str,
@@ -91,16 +101,16 @@ class EventSubscription:
             guard=False):
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise Exception
+                raise SlackApiDecoratorException()
             if not (callable(after) or after is None):
-                raise Exception
+                raise SlackApiDecoratorException()
             condition_list = []
             if condition is not None:
                 condition_list.append(condition)
             if user_id is not None:
                 condition_list.append(self._generate_matched_function(user_id, self._get_user_id_from))
             if channel_id is not None:
-                pass
+                condition_list.append(self._generate_matched_function(channel_id, self._get_channel_id_from))
             if reaction is not None:
                 condition_list.append(self._generate_matched_function(reaction, self._get_reaction_from))
             executor_info = {
