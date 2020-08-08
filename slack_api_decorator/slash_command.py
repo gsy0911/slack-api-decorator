@@ -1,3 +1,4 @@
+from typing import Optional, Union, List
 from .error import SlackApiDecoratorException
 
 
@@ -43,11 +44,22 @@ class SlashCommand:
             raise SlackApiDecoratorException()
         return params['command'][0]
 
+    @staticmethod
+    def _generate_matched_function(key: str, input_x: Union[str, List[str]]) -> callable:
+        if type(input_x) is str:
+            return lambda x: input_x == x[key][0]
+        elif type(input_x) is list:
+            return lambda x: x[key][0] in input_x
+        else:
+            raise SlackApiDecoratorException()
+
     def _add_to_instance(self, executor_info: dict):
         self.executor_list.append(executor_info)
 
     def add(self,
             command: str,
+            user_id: Optional[Union[str, List[str]]] = None,
+            channel_id: Optional[Union[str, List[str]]] = None,
             condition: callable = None,
             after: callable = None,
             guard=False):
@@ -56,10 +68,18 @@ class SlashCommand:
                 raise SlackApiDecoratorException()
             if not (callable(after) or after is None):
                 raise SlackApiDecoratorException()
+
+            condition_list = []
+            if condition is not None:
+                condition_list.append(condition)
+            if user_id is not None:
+                condition_list.append(self._generate_matched_function("user_id", user_id))
+            if channel_id is not None:
+                condition_list.append(self._generate_matched_function("channel_id", channel_id))
             executor_info = {
                 "app_name": self.app_name,
                 "command": command,
-                "condition": condition,
+                "conditions": condition_list,
                 "after": after,
                 "function": f,
                 "guard": guard
@@ -78,9 +98,10 @@ class SlashCommand:
                 # 最初から1つの場合はそれを実行
                 target = functions[0]
             else:
-                functions_with_condition = [v for v in functions if v['condition'] is not None]
-                functions_pass_condition = [v for v in functions_with_condition if v['condition'](params)]
-                functions_as_guard = [v for v in functions if v['condition'] is None]
+                functions_with_condition = [v for v in functions if v['conditions']]
+                functions_pass_condition = [v for v in functions_with_condition
+                                            if all([f(params) for f in v['conditions']])]
+                functions_as_guard = [v for v in functions if not v['conditions']]
                 if len(functions_pass_condition) == 1:
                     target = functions_pass_condition[0]
                 else:
