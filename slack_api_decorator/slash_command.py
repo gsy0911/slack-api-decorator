@@ -1,3 +1,6 @@
+from .error import SlackApiDecoratorException
+
+
 class SlashCommand:
     """
 
@@ -84,14 +87,14 @@ class SlashCommand:
                     if len(functions_as_guard) == 1:
                         target = functions_as_guard[0]
                     else:
-                        raise NotImplementedError
+                        raise SlackApiDecoratorException()
 
         else:
             guard = [v for v in self.executor_list if v['guard']]
             if len(guard) == 1:
                 target = guard[0]
             else:
-                raise NotImplementedError
+                raise SlackApiDecoratorException()
 
         target_function = target['function']
         after_function = target['after']

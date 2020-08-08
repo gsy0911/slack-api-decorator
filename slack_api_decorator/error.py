@@ -1,0 +1,2 @@
+class SlackApiDecoratorException(Exception):
+    pass
