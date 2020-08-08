@@ -69,6 +69,37 @@ def generate_file_public_payload(
     }
 
 
+def generate_message_payload(
+        team_id: str = "Txxxxxxxx",
+        api_app_id: str = "Axxxxxxxx",
+        user_id: str = "Uxxxxxxxx",
+        channel_id: str = "Cxxxxxxxx"):
+    return {
+        'token': '...',
+        'team_id': team_id,
+        'api_app_id': api_app_id,
+        'event': {
+            'client_msg_id': '...',
+            'type': 'message',
+            'text': 'test',
+            'user': user_id,
+            'ts': '1234567890.000000',
+            'team': team_id,
+            'blocks': [
+                {
+                    'type': 'rich_text',
+                    'block_id': 'EBIX',
+                    'elements': [{'type': 'rich_text_section', 'elements': [{'type': 'text', 'text': 'test'}]}]
+                }],
+            'channel': channel_id,
+            'event_ts': '1234567890.000000',
+            'channel_type': 'channel'},
+        'type': 'event_callback',
+        'event_id': 'Evxxxxxxxx',
+        'event_time': 1234567890,
+        'authed_users': [user_id]}
+
+
 event_subscription = EventSubscription("sample")
 
 
@@ -95,6 +126,13 @@ def reaction_added(params):
 def mix_reaction_added(params):
     print(params)
     return "mix_reaction_added"
+
+
+@event_subscription.add("message", channel_id="Z", after=accept_channel_x("Z"))
+@event_subscription.add("message", user_id="A", after=accept_user_x("A"))
+def message(params):
+    print(params)
+    return "message"
 
 
 @event_subscription.add("reaction_added", guard=True)
@@ -127,17 +165,35 @@ def test_file_public():
      accept_reaction_x("right")(accept_channel_x("W")("mix_reaction_added"))),
     # test guard
     (generate_reaction_payload(), "guard"),
-
 ])
 def test_reaction_added(slack_payload, ideal_result):
     assert event_subscription.execute(slack_payload) == ideal_result
+
+
+@pytest.mark.parametrize("slack_payload, ideal_result", [
+    (generate_message_payload(channel_id="Z"), accept_channel_x("Z")("message")),
+    (generate_message_payload(user_id="A"), accept_user_x("A")("message"))
+])
+def test_message(slack_payload, ideal_result):
+    assert event_subscription.execute(slack_payload) == ideal_result
+
+
+def test_message_error():
+    error_subscription = EventSubscription("error")
+
+    @error_subscription.add("message", reaction="+1")
+    def event_subscription_message_error(params):
+        print(params)
+
+    with pytest.raises(SlackApiDecoratorException):
+        error_subscription.execute(generate_message_payload())
 
 
 @pytest.mark.parametrize("slack_payload, description", [
         ({"user_id": ""}, "error no command"),
         ({"event": []}, "error empty event"),
 ])
-def test_slash_command_error(slack_payload, description):
+def test_event_subscription_error(slack_payload, description):
     with pytest.raises(SlackApiDecoratorException):
         event_subscription.execute(slack_payload)
 

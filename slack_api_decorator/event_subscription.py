@@ -70,6 +70,8 @@ class EventSubscription:
         if "item" in params['event']:
             if "channel" in params['event']['item']:
                 return params['event']['item']['channel']
+        elif "channel" in params['event']:
+            return params['event']['channel']
         else:
             raise SlackApiDecoratorException()
 
@@ -132,25 +134,20 @@ class EventSubscription:
 
     def execute(self, params: dict):
         event_type = self._get_event_type_from(params=params)
-        # user_id = self._get_user_id_from(params=params)
         functions = [v for v in self._executor_list if v['event_type'] == event_type]
 
         if functions:
-            if len(functions) == 1:
-                # 最初から1つの場合はそれを実行
-                target = functions[0]
+            functions_with_condition = [v for v in functions if v['conditions']]
+            functions_pass_condition = [v for v in functions_with_condition
+                                        if all([f(params) for f in v['conditions']])]
+            functions_as_guard = [v for v in functions if not v['conditions']]
+            if len(functions_pass_condition) == 1:
+                target = functions_pass_condition[0]
             else:
-                functions_with_condition = [v for v in functions if v['conditions']]
-                functions_pass_condition = [v for v in functions_with_condition
-                                            if all([f(params) for f in v['conditions']])]
-                functions_as_guard = [v for v in functions if not v['conditions']]
-                if len(functions_pass_condition) == 1:
-                    target = functions_pass_condition[0]
+                if len(functions_as_guard) == 1:
+                    target = functions_as_guard[0]
                 else:
-                    if len(functions_as_guard) == 1:
-                        target = functions_as_guard[0]
-                    else:
-                        raise SlackApiDecoratorException()
+                    raise SlackApiDecoratorException()
 
         else:
             guard = [v for v in self._executor_list if v['guard']]
