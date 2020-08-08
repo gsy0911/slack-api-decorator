@@ -39,7 +39,7 @@ def accept_user_x(user) -> callable:
 
 # accept lambda
 def accept_channel_x(channel) -> callable:
-    return lambda x: f"accept_{x}_user_{channel}"
+    return lambda x: f"accept_{x}_channel_{channel}"
 
 
 @sc1.add(command=cmd1, condition=lambda x: x['user_id'][0] == "A", after=accept_user_x("A"))
