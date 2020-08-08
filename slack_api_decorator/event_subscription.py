@@ -1,3 +1,4 @@
+from typing import Optional, Union, List
 from .error import SlackApiDecoratorException
 
 
@@ -43,7 +44,7 @@ class EventSubscription:
         get user_id from the payload
         """
         if 'event' not in params:
-            raise Exception
+            raise SlackApiDecoratorException()
         return params['event']['type']
 
     @staticmethod
@@ -52,7 +53,7 @@ class EventSubscription:
         get user_id from the payload
         """
         if 'event' not in params:
-            raise Exception
+            raise SlackApiDecoratorException()
         if "user_id" in params['event']:
             return params['event']['user_id']
         elif "user" in params['event']:
@@ -60,8 +61,29 @@ class EventSubscription:
         else:
             return ""
 
+    @staticmethod
+    def _get_reaction_from(params: dict) -> str:
+        if 'event' not in params:
+            raise SlackApiDecoratorException()
+        if "reaction" in params['event']:
+            return params['event']['user_id']
+        else:
+            raise SlackApiDecoratorException()
+
+    @staticmethod
+    def _generate_matched_function(input_x: Union[str, List[str]], function: callable) -> callable:
+        if type(input_x) is str:
+            return lambda x: function(x) == input_x
+        elif type(input_x) is list:
+            return lambda x: function(x) in input_x
+        else:
+            raise SlackApiDecoratorException
+
     def add(self,
             event_type: str,
+            user_id: Optional[Union[str, List[str]]] = None,
+            channel_id: Optional[Union[str, List[str]]] = None,
+            reaction: Optional[Union[str, List[str]]] = None,
             condition: callable = None,
             after: callable = None,
             guard=False):
@@ -70,10 +92,19 @@ class EventSubscription:
                 raise Exception
             if not (callable(after) or after is None):
                 raise Exception
+            condition_list = []
+            if condition is not None:
+                condition_list.append(condition)
+            if user_id is not None:
+                condition_list.append(self._generate_matched_function(user_id, self._get_user_id_from))
+            if channel_id is not None:
+                pass
+            if reaction is not None:
+                condition_list.append(self._generate_matched_function(channel_id, self._get_reaction_from))
             executor_info = {
                 "app_name": self.app_name,
                 "event_type": event_type,
-                "condition": condition,
+                "conditions": condition_list,
                 "after": after,
                 "function": f,
                 "guard": guard
@@ -89,7 +120,7 @@ class EventSubscription:
 
     def execute(self, params: dict):
         event_type = self._get_event_type_from(params=params)
-        user_id = self._get_user_id_from(params=params)
+        # user_id = self._get_user_id_from(params=params)
         functions = [v for v in self._executor_list if v['event_type'] == event_type]
 
         if functions:
@@ -97,9 +128,10 @@ class EventSubscription:
                 # 最初から1つの場合はそれを実行
                 target = functions[0]
             else:
-                functions_with_condition = [v for v in functions if v['condition'] is not None]
-                functions_pass_condition = [v for v in functions_with_condition if v['condition'](params)]
-                functions_as_guard = [v for v in functions if v['condition'] is None]
+                functions_with_condition = [v for v in functions if v['conditions']]
+                functions_pass_condition = [v for v in functions_with_condition
+                                            if all([f(params) for f in v['conditions']])]
+                functions_as_guard = [v for v in functions if not v['condition']]
                 if len(functions_pass_condition) == 1:
                     target = functions_pass_condition[0]
                 else:
