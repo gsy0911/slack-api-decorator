@@ -45,6 +45,8 @@ class EventSubscription:
         """
         if 'event' not in params:
             raise SlackApiDecoratorException()
+        if 'type' not in params['event']:
+            raise SlackApiDecoratorException()
         return params['event']['type']
 
     @staticmethod
@@ -66,7 +68,7 @@ class EventSubscription:
         if 'event' not in params:
             raise SlackApiDecoratorException()
         if "reaction" in params['event']:
-            return params['event']['user_id']
+            return params['event']['reaction']
         else:
             raise SlackApiDecoratorException()
 
@@ -100,7 +102,7 @@ class EventSubscription:
             if channel_id is not None:
                 pass
             if reaction is not None:
-                condition_list.append(self._generate_matched_function(channel_id, self._get_reaction_from))
+                condition_list.append(self._generate_matched_function(reaction, self._get_reaction_from))
             executor_info = {
                 "app_name": self.app_name,
                 "event_type": event_type,
@@ -131,7 +133,7 @@ class EventSubscription:
                 functions_with_condition = [v for v in functions if v['conditions']]
                 functions_pass_condition = [v for v in functions_with_condition
                                             if all([f(params) for f in v['conditions']])]
-                functions_as_guard = [v for v in functions if not v['condition']]
+                functions_as_guard = [v for v in functions if not v['conditions']]
                 if len(functions_pass_condition) == 1:
                     target = functions_pass_condition[0]
                 else:
