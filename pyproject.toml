@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "{project_name}"
+name = "slackapidecorator"
 version = "0.1.0"
 description = ""
-authors = ["{your_name} <{your_email}}>"]
+authors = ["gsy00911 yoshiki0911@gmail.com"]
 
 [tool.poetry.dependencies]
 python = "^3.7"

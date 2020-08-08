@@ -1,6 +1,14 @@
-# template-python
+# slack-api-decorator
 
-## setup
+## usage
 
-* modify `pyproject.toml`
-* type `$ poetry install`
+### Slash Command
+
+```python
+from slack_api_decorator import SlashCommand 
+sc = SlashCommand("sample")
+
+@sc.add(command="/example")
+def accept_example(params):
+    return params
+```
