@@ -103,6 +103,8 @@ def generate_message_payload(
 event_subscription = EventSubscription("sample")
 
 
+# @event_subscription.add("file_public", channel_id="Z", after=accept_channel_x("Z"))
+@event_subscription.add("file_public", user_id="A", after=accept_user_x("A"))
 @event_subscription.add("file_public")
 def file_public(params):
     print(params)
@@ -141,9 +143,11 @@ def guard(params):
     return "guard"
 
 
-def test_file_public():
-    result = event_subscription.execute(generate_file_public_payload())
-    assert result == "file_public_event"
+@pytest.mark.parametrize("slack_payload, ideal_result", [
+    (generate_file_public_payload(), "file_public_event")
+])
+def test_file_public(slack_payload, ideal_result):
+    assert event_subscription.execute(slack_payload) == ideal_result
 
 
 @pytest.mark.parametrize("slack_payload, ideal_result", [
@@ -182,6 +186,28 @@ def test_message_error():
     error_subscription = EventSubscription("error")
 
     @error_subscription.add("message", reaction="+1")
+    def event_subscription_message_error(params):
+        print(params)
+
+    with pytest.raises(SlackApiDecoratorException):
+        error_subscription.execute(generate_message_payload())
+
+
+def test_file_upload_error_channel_id():
+    error_subscription = EventSubscription("error")
+
+    @error_subscription.add("file_upload", channel_id="Z")
+    def event_subscription_message_error(params):
+        print(params)
+
+    with pytest.raises(SlackApiDecoratorException):
+        error_subscription.execute(generate_message_payload())
+
+
+def test_file_upload_error_reaction():
+    error_subscription = EventSubscription("error")
+
+    @error_subscription.add("file_upload", reaction="+1")
     def event_subscription_message_error(params):
         print(params)
 
