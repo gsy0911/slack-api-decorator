@@ -74,6 +74,7 @@ event_subscription = EventSubscription("sample")
 
 @event_subscription.add("file_public")
 def file_public(params):
+    print(params)
     return "file_public_event"
 
 
@@ -85,7 +86,21 @@ def file_public(params):
 @event_subscription.add("reaction_added", reaction="hello", after=accept_reaction_x("morning"))
 @event_subscription.add("reaction_added", reaction="+1", after=accept_reaction_x("+1"))
 def reaction_added(params):
+    print(params)
     return "reaction_added"
+
+
+@event_subscription.add("reaction_added", reaction="right", channel_id="W",
+                        after=lambda x: accept_reaction_x("right")(accept_channel_x("W")(x)))
+def mix_reaction_added(params):
+    print(params)
+    return "mix_reaction_added"
+
+
+@event_subscription.add("reaction_added", guard=True)
+def guard(params):
+    print(params)
+    return "guard"
 
 
 def test_file_public():
@@ -107,6 +122,12 @@ def test_file_public():
     (generate_reaction_payload(channel_id="Z"), accept_channel_x("Z")("reaction_added")),
     (generate_reaction_payload(channel_id="X"), accept_channel_x("XY")("reaction_added")),
     (generate_reaction_payload(channel_id="Y"), accept_channel_x("XY")("reaction_added")),
+    # mix_reaction (reaction + channel)
+    (generate_reaction_payload(reaction="right", channel_id="W"),
+     accept_reaction_x("right")(accept_channel_x("W")("mix_reaction_added"))),
+    # test guard
+    (generate_reaction_payload(), "guard"),
+
 ])
 def test_reaction_added(slack_payload, ideal_result):
     assert event_subscription.execute(slack_payload) == ideal_result
@@ -114,8 +135,24 @@ def test_reaction_added(slack_payload, ideal_result):
 
 @pytest.mark.parametrize("slack_payload, description", [
         ({"user_id": ""}, "error no command"),
-        ({"event": []}, "error empty event")
-    ])
+        ({"event": []}, "error empty event"),
+])
 def test_slash_command_error(slack_payload, description):
     with pytest.raises(SlackApiDecoratorException):
         event_subscription.execute(slack_payload)
+
+
+def test_condition_not_callable_error():
+    with pytest.raises(SlackApiDecoratorException):
+        @event_subscription.add("reaction_added", condition="some_string")
+        def event_subscription_condition_error(params):
+            print(params)
+            return "error"
+
+
+def test_after_not_callable_error():
+    with pytest.raises(SlackApiDecoratorException):
+        @event_subscription.add("reaction_added", after="some_string")
+        def event_subscription_condition_error(params):
+            print(params)
+            return "error"
