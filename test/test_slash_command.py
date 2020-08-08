@@ -23,12 +23,6 @@ def generate_slash_command_payload(
         'trigger_id': ['[0-9]{13}.[0-9]{12}.[0-9a-z]+']}
 
 
-payload_from_slack_1 = generate_slash_command_payload(command="/sc1")
-payload_from_slack_2 = generate_slash_command_payload(command="/sc2")
-payload_from_slack_user_A = generate_slash_command_payload(command="/sc1", user_id="A")
-payload_from_slack_user_B = generate_slash_command_payload(command="/sc1", user_id="B")
-payload_from_slack_channel_Z = generate_slash_command_payload(command="/sc1", channel_id="Z")
-
 sc1 = SlashCommand("test1")
 
 
@@ -59,15 +53,24 @@ def sc2_accept(params):
 
 
 @pytest.mark.parametrize("slack_payload,ideal_result", [
-        (payload_from_slack_1, "sc1_accept"),
-        (payload_from_slack_2, "sc2_accept"),
-        (payload_from_slack_user_B, "after_sc1_accept_user_B"),
-        (payload_from_slack_user_A, "sc1_accept_user_A"),
-        (payload_from_slack_channel_Z, "sc1_accept_channel_Z"),
+        (generate_slash_command_payload(command="/sc1"), "sc1_accept"),
+        (generate_slash_command_payload(command="/sc2"), "sc2_accept"),
+        (generate_slash_command_payload(command="/sc1", user_id="B"), "after_sc1_accept_user_B"),
+        (generate_slash_command_payload(command="/sc1", user_id="A"), "sc1_accept_user_A"),
+        (generate_slash_command_payload(command="/sc1", channel_id="Z"), "sc1_accept_channel_Z"),
         (generate_slash_command_payload(command="/none"), "guard")
     ])
 def test_slash_command(slack_payload, ideal_result):
     assert sc1.execute(slack_payload) == ideal_result
+
+
+@pytest.mark.parametrize("slack_payload, description", [
+        ({"user_id": ""}, "error no command"),
+        ({"command": []}, "error empty command")
+    ])
+def test_slash_command_error(slack_payload, description):
+    with pytest.raises(SlackApiDecoratorException):
+        sc1.execute(slack_payload)
 
 
 def test_condition_not_callable_error():
