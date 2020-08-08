@@ -19,7 +19,7 @@ help:
 .PHONY: help
 
 test-python:
-	pytest ./test -vv --cov=./azfs --cov-report=html
+	pytest ./test -vv --cov=./slack_api_decorator --cov-report=html
 
 deploy:
 	twine upload dist/*
@@ -31,4 +31,4 @@ build:
 	python setup.py sdist bdist_wheel
 
 clean:
-	rm -f -r azfs.egg-info/* dist/* -y
+	rm -f -r slack_api_decorator.egg-info/* dist/* -y

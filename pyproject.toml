@@ -2,7 +2,7 @@
 name = "slackapidecorator"
 version = "0.1.0"
 description = ""
-authors = ["gsy00911 yoshiki0911@gmail.com"]
+authors = ["gsy0911 <yoshiki0911@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
