@@ -4,14 +4,14 @@ help:
 	@echo "type 'make test-python' to execute python test with pytest"
 	@echo ""
 	@echo " == test-pypi upload == "
-	@echo "type 'make clean build test-deploy' to upload test-pypi"
+	@echo "type 'make clean wheel test-deploy' to upload test-pypi"
 	@echo ""
 	@echo " == pypi upload == "
-	@echo "type 'make clean build deploy' to upload pypi"
+	@echo "type 'make clean wheel deploy' to upload pypi"
 	@echo ""
 	@echo " == command references == "
 	@echo "clean: clean build directory"
-	@echo "build: build python project"
+	@echo "wheel: build python project"
 	@echo "deploy: upload to pypi"
 	@echo "test-deploy: upload to pypi"
 	@echo "test-python: test with pytest"
@@ -28,7 +28,7 @@ deploy:
 test-deploy:
 	twine upload -r testpypi dist/*
 
-build:
+wheel:
 	python setup.py sdist bdist_wheel
 
 clean:
