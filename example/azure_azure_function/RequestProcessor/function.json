@@ -6,7 +6,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "slack/process",
+      "route": "slack/event/process",
       "methods": [
         "post"
       ]
