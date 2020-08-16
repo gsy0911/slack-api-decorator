@@ -36,7 +36,6 @@ class SlashCommand:
         """
         self.app_name = app_name
         self.executor_list: list = []
-        self.guard = None
 
     @staticmethod
     def _get_command_from(params: dict) -> str:
