@@ -29,6 +29,11 @@ class SlashCommand:
     """
 
     def __init__(self, app_name: str):
+        """
+        
+        Args:
+            app_name: application name for the instance. Currently, any name is accepted.
+        """
         self.app_name = app_name
         self.executor_list: list = []
         self.guard = None
@@ -63,6 +68,31 @@ class SlashCommand:
             condition: callable = None,
             after: callable = None,
             guard=False):
+        """
+        register function to be called, when the specified `command` is recieved from the slack payload.
+        The name of the arguments of registered function must be `params`
+        
+        
+        Args:
+            command: required. the name of the slash command.
+            user_id: filtere with user_id such as `Uxxxxxxxx`.
+            channel_id: filter with channel_id.
+            condition: additional condition whether the registered function is called.
+            after: additional function with recieving the response of the function.
+            guard: if True, the registered function is always called.
+            
+        Example:
+            >>> slack_payload = {...}
+            >>> slash_command = SlashCommand(app_name="your_app_name")
+            >>> 
+            >>> @slash_command.add("/your_command")
+            >>> def recieve_your_command(params):
+            ...     # do something
+            ...     return params
+            >>>
+            >>>
+            >>> slash_command.execute(slack_payload)
+        """
         def decorator(f):
             if not (callable(condition) or condition is None):
                 raise SlackApiDecoratorException()
