@@ -1,5 +1,5 @@
 from typing import Optional, Union, List
-from .error import SlackApiDecoratorException
+from .error import SlackParameterNotFoundError, DecoratorAddError, DecoratorExecuteError
 
 
 class SlashCommand:
@@ -43,9 +43,9 @@ class SlashCommand:
         get command from the payload
         """
         if 'command' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("command", params)
         if len(params['command']) == 0:
-            raise SlackApiDecoratorException()
+            raise DecoratorAddError()
         return params['command'][0]
 
     @staticmethod
@@ -55,7 +55,7 @@ class SlashCommand:
         elif type(input_x) is list:
             return lambda x: x[key][0] in input_x
         else:
-            raise SlackApiDecoratorException()
+            raise DecoratorAddError()
 
     def _add_to_instance(self, executor_info: dict):
         self.executor_list.append(executor_info)
@@ -94,9 +94,9 @@ class SlashCommand:
         """
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError()
             if not (callable(after) or after is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError()
 
             condition_list = []
             if condition is not None:
@@ -137,14 +137,14 @@ class SlashCommand:
                     if len(functions_as_guard) == 1:
                         target = functions_as_guard[0]
                     else:
-                        raise SlackApiDecoratorException()
+                        raise DecoratorExecuteError()
 
         else:
             guard = [v for v in self.executor_list if v['guard']]
             if len(guard) == 1:
                 target = guard[0]
             else:
-                raise SlackApiDecoratorException()
+                raise DecoratorExecuteError()
 
         target_function = target['function']
         after_function = target['after']
