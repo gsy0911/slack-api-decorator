@@ -9,3 +9,11 @@ class SlackParameterNotFoundError(SlackApiDecoratorException):
 
     def __str__(self):
         return f"[{self.missing_key}] not found in [{self.parent_dict}]"
+
+
+class DecoratorAddError(SlackApiDecoratorException):
+    pass
+
+
+class DecoratorExecuteError(SlackApiDecoratorException):
+    pass
