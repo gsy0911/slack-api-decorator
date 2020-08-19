@@ -94,9 +94,9 @@ class SlashCommand:
         """
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise DecoratorAddError()
+                raise DecoratorAddError("argument [condition] must be callable")
             if not (callable(after) or after is None):
-                raise DecoratorAddError()
+                raise DecoratorAddError("argument [after] must be callable")
 
             condition_list = []
             if condition is not None:
@@ -137,14 +137,14 @@ class SlashCommand:
                     if len(functions_as_guard) == 1:
                         target = functions_as_guard[0]
                     else:
-                        raise DecoratorExecuteError()
+                        raise DecoratorExecuteError("cannot set multiple [guard]")
 
         else:
             guard = [v for v in self.executor_list if v['guard']]
             if len(guard) == 1:
                 target = guard[0]
             else:
-                raise DecoratorExecuteError()
+                raise DecoratorExecuteError("cannot set multiple [guard]")
 
         target_function = target['function']
         after_function = target['after']
