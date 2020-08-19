@@ -1,5 +1,5 @@
 from typing import Optional, Union, List
-from .error import SlackApiDecoratorException
+from .error import SlackParameterNotFoundError, DecoratorAddError, DecoratorExecuteError
 
 
 class EventSubscription:
@@ -44,9 +44,9 @@ class EventSubscription:
         get user_id from the payload
         """
         if 'event' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("event", params)
         if 'type' not in params['event']:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("type", params['event'])
         return params['event']['type']
 
     @staticmethod
@@ -55,34 +55,34 @@ class EventSubscription:
         get user_id from the payload
         """
         if 'event' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("event", params)
         if "user_id" in params['event']:
             return params['event']['user_id']
         elif "user" in params['event']:
             return params['event']['user']
         else:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("user_id", params)
 
     @staticmethod
     def _get_channel_id_from(params: dict) -> dict:
         if 'event' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("event", params)
         if "item" in params['event']:
             if "channel" in params['event']['item']:
                 return params['event']['item']['channel']
         elif "channel" in params['event']:
             return params['event']['channel']
         else:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("channel_id", params)
 
     @staticmethod
     def _get_reaction_from(params: dict) -> str:
         if 'event' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("event", params)
         if "reaction" in params['event']:
             return params['event']['reaction']
         else:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("reaction", params['event'])
 
     @staticmethod
     def _generate_matched_function(input_x: Union[str, List[str]], function: callable) -> callable:
@@ -91,7 +91,7 @@ class EventSubscription:
         elif type(input_x) is list:
             return lambda x: function(x) in input_x
         else:
-            raise SlackApiDecoratorException()
+            raise DecoratorAddError()
 
     def add(self,
             event_type: str,
@@ -103,9 +103,9 @@ class EventSubscription:
             guard=False):
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError("argument [condition] must be callable")
             if not (callable(after) or after is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError("argument [after] must be callable")
             condition_list = []
             if condition is not None:
                 condition_list.append(condition)
@@ -147,14 +147,14 @@ class EventSubscription:
                 if len(functions_as_guard) == 1:
                     target = functions_as_guard[0]
                 else:
-                    raise SlackApiDecoratorException()
+                    raise DecoratorExecuteError("cannot set multiple [guard]")
 
         else:
             guard = [v for v in self._executor_list if v['guard']]
             if len(guard) == 1:
                 target = guard[0]
             else:
-                raise SlackApiDecoratorException()
+                raise DecoratorExecuteError("cannot set multiple [guard]")
 
         target_function = target['function']
         after_function = target['after']
