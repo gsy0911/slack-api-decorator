@@ -40,7 +40,7 @@ jobs:
         run: poetry run pytest test
       - name: Upload coverage to Codecov
         # 上記のstepsが全て完了した場合にcodecovへupload
-        if: (${{ suuccess() && matrix.python-version==3.8 }}
+        if: ${{ matrix.python-version==3.8 }}
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage.xml
