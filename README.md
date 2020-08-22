@@ -1,6 +1,6 @@
 # slack-api-decorator
 
-[![CircleCI](https://circleci.com/gh/gsy0911/slack-api-decorator.svg?style=svg&circle-token=25c5e4396ea45aae79973f632de183ca4090d103)](https://circleci.com/gh/gsy0911/slack-api-decorator)
+[![github-pytest](https://github.com/gsy0911/slack-api-decorator/workflows/pytest/badge.svg)](https://github.com/gsy0911/slack-api-decorator/actions?query=workflow%3Apytest)
 [![codecov](https://codecov.io/gh/gsy0911/slack-api-decorator/branch/master/graph/badge.svg)](https://codecov.io/gh/gsy0911/slack-api-decorator)
 [![PythonVersion](https://img.shields.io/badge/python-3.6|3.7|3.8-blue.svg)](https://www.python.org/downloads/release/python-377/)
 [![PiPY](https://img.shields.io/badge/pypi-0.1.0-blue.svg)](https://pypi.org/project/slackapidecorator/)
