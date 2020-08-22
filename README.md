@@ -1,7 +1,9 @@
 # slack-api-decorator
 
-[![PythonVersion](https://img.shields.io/badge/python-3.6|3.7|3.8-blue.svg)](https://www.python.org/downloads/release/python-377/)
-[![PiPY](https://img.shields.io/badge/pypi-0.1.0-blue.svg)](https://pypi.org/project/slackapidecorator/)
+[![github-pytest](https://github.com/gsy0911/slack-api-decorator/workflows/pytest/badge.svg)](https://github.com/gsy0911/slack-api-decorator/actions?query=workflow%3Apytest)
+[![codecov](https://codecov.io/gh/gsy0911/slack-api-decorator/branch/master/graph/badge.svg)](https://codecov.io/gh/gsy0911/slack-api-decorator)
+[![PythonVersion](https://img.shields.io/badge/python-3.7|3.8-blue.svg)](https://www.python.org/downloads/release/python-377/)
+[![PiPY](https://img.shields.io/badge/pypi-0.1.1-blue.svg)](https://pypi.org/project/slackapidecorator/)
 
 Slack-API-decorator provides simple decorator to receive slack-payload: `Slash Command` and `Event Subscription`. 
 

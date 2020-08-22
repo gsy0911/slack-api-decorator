@@ -15,6 +15,7 @@ help:
 	@echo "deploy: upload to pypi"
 	@echo "test-deploy: upload to pypi"
 	@echo "test-python: test with pytest"
+	@echo "ci: execute circleCI on local"
 
 
 .PHONY: help
@@ -33,3 +34,6 @@ wheel:
 
 clean:
 	rm -f -r slack_api_decorator.egg-info/* dist/* -y
+
+ci:
+	circleci local execute --job python_test_3_8

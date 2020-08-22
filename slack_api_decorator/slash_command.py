@@ -1,5 +1,5 @@
 from typing import Optional, Union, List
-from .error import SlackApiDecoratorException
+from .error import SlackParameterNotFoundError, DecoratorAddError, DecoratorExecuteError
 
 
 class SlashCommand:
@@ -29,9 +29,13 @@ class SlashCommand:
     """
 
     def __init__(self, app_name: str):
+        """
+        
+        Args:
+            app_name: application name for the instance. Currently, any name is accepted.
+        """
         self.app_name = app_name
         self.executor_list: list = []
-        self.guard = None
 
     @staticmethod
     def _get_command_from(params: dict) -> str:
@@ -39,9 +43,9 @@ class SlashCommand:
         get command from the payload
         """
         if 'command' not in params:
-            raise SlackApiDecoratorException()
+            raise SlackParameterNotFoundError("command", params)
         if len(params['command']) == 0:
-            raise SlackApiDecoratorException()
+            raise DecoratorAddError()
         return params['command'][0]
 
     @staticmethod
@@ -51,7 +55,7 @@ class SlashCommand:
         elif type(input_x) is list:
             return lambda x: x[key][0] in input_x
         else:
-            raise SlackApiDecoratorException()
+            raise DecoratorAddError()
 
     def _add_to_instance(self, executor_info: dict):
         self.executor_list.append(executor_info)
@@ -63,11 +67,36 @@ class SlashCommand:
             condition: callable = None,
             after: callable = None,
             guard=False):
+        """
+        register function to be called, when the specified `command` is recieved from the slack payload.
+        The name of the arguments of registered function must be `params`
+        
+        
+        Args:
+            command: required. the name of the slash command.
+            user_id: filtere with user_id such as `Uxxxxxxxx`.
+            channel_id: filter with channel_id.
+            condition: additional condition whether the registered function is called.
+            after: additional function with recieving the response of the function.
+            guard: if True, the registered function is always called.
+            
+        Example:
+            >>> slack_payload = {...}
+            >>> slash_command = SlashCommand(app_name="your_app_name")
+            >>> 
+            >>> @slash_command.add("/your_command")
+            >>> def recieve_your_command(params):
+            ...     # do something
+            ...     return params
+            >>>
+            >>>
+            >>> slash_command.execute(slack_payload)
+        """
         def decorator(f):
             if not (callable(condition) or condition is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError("argument [condition] must be callable")
             if not (callable(after) or after is None):
-                raise SlackApiDecoratorException()
+                raise DecoratorAddError("argument [after] must be callable")
 
             condition_list = []
             if condition is not None:
@@ -108,14 +137,14 @@ class SlashCommand:
                     if len(functions_as_guard) == 1:
                         target = functions_as_guard[0]
                     else:
-                        raise SlackApiDecoratorException()
+                        raise DecoratorExecuteError("cannot set multiple [guard]")
 
         else:
             guard = [v for v in self.executor_list if v['guard']]
             if len(guard) == 1:
                 target = guard[0]
             else:
-                raise SlackApiDecoratorException()
+                raise DecoratorExecuteError("cannot set multiple [guard]")
 
         target_function = target['function']
         after_function = target['after']
