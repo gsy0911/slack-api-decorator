@@ -37,16 +37,13 @@ jobs:
         run: poetry install --no-interaction
       # pytest を実行する
       - name: Run Tests
-        run: poetry run pytest test
+        run: poetry run pytest test --cov=./slack_api_decorator --cov-report=xml
       - name: Upload coverage to Codecov
         # 上記のstepsが全て完了した場合にcodecovへupload
         if: ${{ matrix.python-version==3.8 }}
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage.xml
-          directory: ./coverage/reports/
-          # flags: unittests
-          # env_vars: OS,PYTHON
           name: codecov-umbrella
           fail_ci_if_error: true
           path_to_write_report: ./coverage/codecov_report.gz
