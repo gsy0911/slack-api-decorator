@@ -24,7 +24,7 @@ class EventSubscription:
         ...     'authed_users': ['Uxxxxxxxx']
         ...     }
         >>> es = EventSubscription("sample")
-        >>> @EventSubscription.add(command="/some")
+        >>> @es.add(command="/some")
         >>> def some_function(params: dict):
         ...     return {
         ...             "response_type": "in_channel",
@@ -95,12 +95,29 @@ class EventSubscription:
 
     def add(self,
             event_type: str,
+            *,
             user_id: Optional[Union[str, List[str]]] = None,
             channel_id: Optional[Union[str, List[str]]] = None,
             reaction: Optional[Union[str, List[str]]] = None,
             condition: callable = None,
             after: callable = None,
             guard=False):
+        """
+        add function to receive Event Subscription.
+        The name of the arguments of registered function must be `params`
+
+        Args:
+            event_type: required. the name of the Event Subscription.
+            user_id: filter with user_id such as `Uxxxxxxxx`.
+            channel_id: filter with channel_id.
+            reaction: filter with slack stamp-name.
+            condition: additional condition whether the registered function is called.
+            after: additional function with recieving the response of the function.
+            guard: if True, the registered function is always called.
+
+        Returns:
+
+        """
         def decorator(f):
             if not (callable(condition) or condition is None):
                 raise DecoratorAddError("argument [condition] must be callable")
@@ -133,6 +150,14 @@ class EventSubscription:
         cls.ignore_user_id_list.append(user_id)
 
     def execute(self, params: dict):
+        """
+
+        Args:
+            params: payload from Event Subscription of slack.
+
+        Returns:
+
+        """
         event_type = self._get_event_type_from(params=params)
         functions = [v for v in self._executor_list if v['event_type'] == event_type]
 
