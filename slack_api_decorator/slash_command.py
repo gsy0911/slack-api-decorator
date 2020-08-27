@@ -62,6 +62,7 @@ class SlashCommand:
 
     def add(self,
             command: str,
+            *,
             user_id: Optional[Union[str, List[str]]] = None,
             channel_id: Optional[Union[str, List[str]]] = None,
             condition: callable = None,
@@ -85,7 +86,7 @@ class SlashCommand:
             >>> slash_command = SlashCommand(app_name="your_app_name")
             >>> 
             >>> @slash_command.add("/your_command")
-            >>> def recieve_your_command(params):
+            >>> def receive_your_command(params):
             ...     # do something
             ...     return params
             >>>
