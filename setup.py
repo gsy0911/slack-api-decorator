@@ -39,7 +39,6 @@ setuptools.setup(
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Development Status :: 3 - Alpha",
@@ -47,6 +46,6 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License"
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     keywords=["slack", "slack-api", "slash-command", "event-subscription"]
 )
