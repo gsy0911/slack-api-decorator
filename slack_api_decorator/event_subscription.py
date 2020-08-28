@@ -43,6 +43,9 @@ class EventSubscription:
         """
         get event dict from slack payload
         
+        Args:
+            params: payload from slack
+        
         Raises:
             if not 'event' in params
         """
@@ -94,6 +97,24 @@ class EventSubscription:
 
     @staticmethod
     def _generate_matched_function(input_x: Union[str, List[str]], function: callable) -> callable:
+        """
+        To generate a new function, which receive a dict-argument,
+        whether some text(: input_x) contains the dict-argument,
+        based on the function(: function) in arguments.
+        
+        Args:
+            input_x:
+            function:
+            
+        Examples:
+            >>> user_id = "Uxxxxxxxx"
+            >>> new_func = self._generate_matched_function(user_id, self._get_user_id_from)
+            >>> 
+            >>> payload_from_slack = {"event": {"user_id": "Uxxxxxxxx"}}
+            >>> new_func(payload_from_slack)
+            ... True
+        
+        """
         if type(input_x) is str:
             return lambda x: function(x) == input_x
         elif type(input_x) is list:
