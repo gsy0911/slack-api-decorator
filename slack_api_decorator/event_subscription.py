@@ -37,52 +37,60 @@ class EventSubscription:
     def __init__(self, app_name: str):
         self.app_name = app_name
         self._executor_list = []
-
+        
+    @staticmethod
+    def _get_event(params: dict) -> dict:
+        """
+        get event dict from slack payload
+        
+        Raises:
+            if not 'event' in params
+        """
+        if "event" not in params:
+            raise SlackParameterNotFoundError("event", params)
+        return params['event']
+        
     @staticmethod
     def _get_event_type_from(params: dict) -> str:
         """
         get user_id from the payload
         """
-        if 'event' not in params:
-            raise SlackParameterNotFoundError("event", params)
-        if 'type' not in params['event']:
-            raise SlackParameterNotFoundError("type", params['event'])
-        return params['event']['type']
+        event = self._get_event(params=params)
+        if 'type' not in event:
+            raise SlackParameterNotFoundError("type", event)
+        return event['type']
 
     @staticmethod
     def _get_user_id_from(params: dict) -> str:
         """
         get user_id from the payload
         """
-        if 'event' not in params:
-            raise SlackParameterNotFoundError("event", params)
-        if "user_id" in params['event']:
-            return params['event']['user_id']
-        elif "user" in params['event']:
-            return params['event']['user']
+        event = self._get_event(params=params)
+        if "user_id" in event:
+            return event['user_id']
+        elif "user" in event:
+            return event['user']
         else:
             raise SlackParameterNotFoundError("user_id", params)
 
     @staticmethod
     def _get_channel_id_from(params: dict) -> dict:
-        if 'event' not in params:
-            raise SlackParameterNotFoundError("event", params)
-        if "item" in params['event']:
-            if "channel" in params['event']['item']:
-                return params['event']['item']['channel']
-        elif "channel" in params['event']:
-            return params['event']['channel']
+        event = self._get_event(params=params)
+        if "item" in event:
+            if "channel" in event['item']:
+                return event['item']['channel']
+        elif "channel" in event:
+            return event['channel']
         else:
             raise SlackParameterNotFoundError("channel_id", params)
 
     @staticmethod
     def _get_reaction_from(params: dict) -> str:
-        if 'event' not in params:
-            raise SlackParameterNotFoundError("event", params)
-        if "reaction" in params['event']:
-            return params['event']['reaction']
+        event = self._get_event(params=params)
+        if "reaction" in event:
+            return event['reaction']
         else:
-            raise SlackParameterNotFoundError("reaction", params['event'])
+            raise SlackParameterNotFoundError("reaction", event)
 
     @staticmethod
     def _generate_matched_function(input_x: Union[str, List[str]], function: callable) -> callable:
