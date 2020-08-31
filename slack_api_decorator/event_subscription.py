@@ -58,7 +58,7 @@ class EventSubscription:
         """
         get user_id from the payload
         """
-        event = self._get_event(params=params)
+        event = EventSubscription._get_event(params=params)
         if 'type' not in event:
             raise SlackParameterNotFoundError("type", event)
         return event['type']
@@ -68,7 +68,7 @@ class EventSubscription:
         """
         get user_id from the payload
         """
-        event = self._get_event(params=params)
+        event = EventSubscription._get_event(params=params)
         if "user_id" in event:
             return event['user_id']
         elif "user" in event:
@@ -78,7 +78,7 @@ class EventSubscription:
 
     @staticmethod
     def _get_channel_id_from(params: dict) -> dict:
-        event = self._get_event(params=params)
+        event = EventSubscription._get_event(params=params)
         if "item" in event:
             if "channel" in event['item']:
                 return event['item']['channel']
@@ -89,7 +89,7 @@ class EventSubscription:
 
     @staticmethod
     def _get_reaction_from(params: dict) -> str:
-        event = self._get_event(params=params)
+        event = EventSubscription._get_event(params=params)
         if "reaction" in event:
             return event['reaction']
         else:
@@ -108,8 +108,7 @@ class EventSubscription:
             
         Examples:
             >>> user_id = "Uxxxxxxxx"
-            >>> new_func = self._generate_matched_function(user_id, self._get_user_id_from)
-            >>> 
+            >>> new_func = EventSubscription._generate_matched_function(user_id, EventSubscription._get_user_id_from)
             >>> payload_from_slack = {"event": {"user_id": "Uxxxxxxxx"}}
             >>> new_func(payload_from_slack)
             ... True
