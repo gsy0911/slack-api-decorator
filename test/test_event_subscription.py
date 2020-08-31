@@ -238,3 +238,11 @@ def test_after_not_callable_error():
         def event_subscription_condition_error(params):
             print(params)
             return "error"
+
+
+def test_argument_name_invalid_error():
+    with pytest.raises(SlackApiDecoratorException):
+        @event_subscription.add("reaction_added")
+        def event_subscription_condition_error(invalid_argument):
+            print(invalid_argument)
+            return "error"
