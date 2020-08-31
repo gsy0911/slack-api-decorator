@@ -1,4 +1,6 @@
+from inspect import signature
 from typing import Optional, Union, List
+
 from .error import SlackParameterNotFoundError, DecoratorAddError, DecoratorExecuteError
 
 
@@ -94,6 +96,10 @@ class SlashCommand:
             >>> slash_command.execute(slack_payload)
         """
         def decorator(f):
+            sig = signature(f)
+            if "params" not in sig.parameters:
+                raise DecoratorAddError(f"[params] not in the function [{f.__name__}]")
+
             if not (callable(condition) or condition is None):
                 raise DecoratorAddError("argument [condition] must be callable")
             if not (callable(after) or after is None):

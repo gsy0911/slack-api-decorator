@@ -94,6 +94,7 @@ def test_condition_not_callable_error():
     with pytest.raises(SlackApiDecoratorException):
         @sc1.add(command="/sc1_error", condition="some_string")
         def sc1_condition_error(params):
+            print(params)
             return "error"
 
 
@@ -101,4 +102,13 @@ def test_after_not_callable_error():
     with pytest.raises(SlackApiDecoratorException):
         @sc1.add(command="/sc1_error", after="some_string")
         def sc1_condition_error(params):
+            print(params)
+            return "error"
+
+
+def test_argument_name_invalid_error():
+    with pytest.raises(SlackApiDecoratorException):
+        @sc1.add(command="/sc1_error")
+        def event_subscription_condition_error(invalid_argument):
+            print(invalid_argument)
             return "error"
