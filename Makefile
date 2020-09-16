@@ -1,4 +1,5 @@
 
+.PHONY: help
 help:
 	@echo " == execute python test on some python .venv == "
 	@echo "type 'make test-python' to execute python test with pytest"
@@ -18,22 +19,27 @@ help:
 	@echo "ci: execute circleCI on local"
 
 
-.PHONY: help
 
+.PHONY: test-python
 test-python:
 	pytest ./test -vv --cov=./slack_api_decorator --cov-report=html
 
+.PHONY: deploy
 deploy:
 	twine upload dist/*
 
+.PHONY: test-deploy
 test-deploy:
 	twine upload -r testpypi dist/*
 
+.PHONY: wheel
 wheel:
 	python setup.py sdist bdist_wheel
 
+.PHONY: clean
 clean:
 	rm -f -r slack_api_decorator.egg-info/* dist/* -y
 
+.PHONY: ci
 ci:
 	circleci local execute --job python_test_3_8
