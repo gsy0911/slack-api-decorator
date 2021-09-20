@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "slackapidecorator"
-version = "0.1.2"
+version = "0.2.0"
 description = ""
 authors = ["gsy0911 <yoshiki0911@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^2.1.1"

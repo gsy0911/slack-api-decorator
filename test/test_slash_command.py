@@ -3,7 +3,7 @@ from slack_api_decorator.error import SlackApiDecoratorException
 import pytest
 
 
-def generate_slash_command_payload(
+def generate_slash_command_payload_type_1(
         command: str = "/...",
         team_id: str = "Txxxxxxxx",
         channel_id: str = "Cxxxxxxxx",
@@ -21,6 +21,26 @@ def generate_slash_command_payload(
         'text': [...],
         'response_url': ['https://hooks.slack.com/commands/Txxxxxxxx/1234567890/...'],
         'trigger_id': ['[0-9]{13}.[0-9]{12}.[0-9a-z]+']}
+
+
+def generate_slash_command_payload_type_2(
+        command: str = "/...",
+        team_id: str = "Txxxxxxxx",
+        channel_id: str = "Cxxxxxxxx",
+        user_id: str = "Uxxxxxxxx"
+):
+    return {
+        'token': "...",
+        'team_id': team_id,
+        'team_domain': '...',
+        'channel_id': channel_id,
+        'channel_name': '...',
+        'user_id': user_id,
+        'user_name': '...',
+        'command': command,
+        'text': ...,
+        'response_url': 'https://hooks.slack.com/commands/Txxxxxxxx/1234567890/...',
+        'trigger_id': '[0-9]{13}.[0-9]{12}.[0-9a-z]+'}
 
 
 # instance
@@ -64,18 +84,32 @@ def sc2_accept(params):
 
 
 @pytest.mark.parametrize("slack_payload,ideal_result", [
-        (generate_slash_command_payload(command=cmd1), cmd1),
-        (generate_slash_command_payload(command=cmd2), cmd2),
-        (generate_slash_command_payload(command=cmd1, user_id="A"), accept_user_x("A")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, user_id="B"), accept_user_x("B")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, user_id="C"), accept_user_x("CD")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, user_id="D"), accept_user_x("CD")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, channel_id="Z"), accept_channel_x("Z")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, channel_id="Y"), accept_channel_x("Y")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, channel_id="W"), accept_channel_x("WX")(cmd1)),
-        (generate_slash_command_payload(command=cmd1, channel_id="X"), accept_channel_x("WX")(cmd1)),
-        (generate_slash_command_payload(command=cmd3), cmd3),
-        (generate_slash_command_payload(command="/none"), cmd3)
+        # params in list
+        (generate_slash_command_payload_type_1(command=cmd1), cmd1),
+        (generate_slash_command_payload_type_1(command=cmd2), cmd2),
+        (generate_slash_command_payload_type_1(command=cmd1, user_id="A"), accept_user_x("A")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, user_id="B"), accept_user_x("B")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, user_id="C"), accept_user_x("CD")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, user_id="D"), accept_user_x("CD")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, channel_id="Z"), accept_channel_x("Z")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, channel_id="Y"), accept_channel_x("Y")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, channel_id="W"), accept_channel_x("WX")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd1, channel_id="X"), accept_channel_x("WX")(cmd1)),
+        (generate_slash_command_payload_type_1(command=cmd3), cmd3),
+        (generate_slash_command_payload_type_1(command="/none"), cmd3),
+        # params not in list
+        (generate_slash_command_payload_type_2(command=cmd1), cmd1),
+        (generate_slash_command_payload_type_2(command=cmd2), cmd2),
+        (generate_slash_command_payload_type_2(command=cmd1, user_id="A"), accept_user_x("A")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, user_id="B"), accept_user_x("B")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, user_id="C"), accept_user_x("CD")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, user_id="D"), accept_user_x("CD")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, channel_id="Z"), accept_channel_x("Z")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, channel_id="Y"), accept_channel_x("Y")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, channel_id="W"), accept_channel_x("WX")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd1, channel_id="X"), accept_channel_x("WX")(cmd1)),
+        (generate_slash_command_payload_type_2(command=cmd3), cmd3),
+        (generate_slash_command_payload_type_2(command="/none"), cmd3)
     ])
 def test_slash_command(slack_payload, ideal_result):
     assert sc1.execute(slack_payload) == ideal_result

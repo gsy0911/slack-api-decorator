@@ -46,9 +46,15 @@ class SlashCommand:
         """
         if 'command' not in params:
             raise SlackParameterNotFoundError("command", params)
-        if len(params['command']) == 0:
-            raise DecoratorAddError()
-        return params['command'][0]
+        command = params['command']
+        if type(command) == list:
+            if len(params['command']) == 0:
+                raise DecoratorAddError()
+            return params['command'][0]
+        elif type(command) == str:
+            return command
+        else:
+            raise SlackParameterNotFoundError("command", params)
 
     @staticmethod
     def _generate_matched_function(key: str, input_x: Union[str, List[str]]) -> callable:
