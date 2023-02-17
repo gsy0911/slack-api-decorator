@@ -387,6 +387,9 @@ traitlets = ">=5.3"
 docs = ["myst-parser", "sphinxcontrib-github-alt", "traitlets"]
 test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
 
+[package.extras]
+test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
+
 [[package]]
 name = "jupyterlab"
 version = "2.2.4"
